@@ -1,21 +1,43 @@
 ﻿Imports LuaInterface
 Imports System.IO
 
-
 Public Class PMOD_MAIN
     Private Sub PMOD_ENGINE_STARTUP(sender As Object, e As EventArgs) Handles MyBase.Load
         Dim modsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "lua")
+        Dim modulesPath As String = Path.Combine(modsPath, "modules")
 
-        ' Check if the directory exists, if not, create it
+        ' Check if the directories exist, if not, create them
         If Not Directory.Exists(modsPath) Then
             Directory.CreateDirectory(modsPath)
             Console.WriteLine("The directory 'mods/lua' was not found and has been created.")
             Return
         End If
 
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        If Not Directory.Exists(modulesPath) Then
+            Directory.CreateDirectory(modulesPath)
+            Console.WriteLine("The directory 'mods/lua/modules' was not found and has been created.")
+        End If
 
         Dim lua As New Lua() ' most important line /gen
+
+        ' Update Lua path to include the modules directory
+        lua.DoString(String.Format("package.path = package.path .. ';{0}{1}?.lua'", modulesPath, Path.DirectorySeparatorChar))
+
+        ' DEFINE: Variables
+        lua.DoString("
+        _P = {}
+        _P.VERSION = 1
+        _P.URL = 'https://github.com/PatoFlamejanteTV/patosmod/tree/main'
+        _P.BRANCH = 'main'
+        _P.GITHUB = 'PatoFlamejanteTV/patosmod'
+        _P.VERSION = '0.0.1'
+        _P.VERSIONSTATE = 'Concept'
+        ")
+
+        ' DEFINE: Functions
+        lua.RegisterFunction("WinForms_MessageBox", Me, [GetType]().GetMethod("WinForms_MessageBox"))
+        lua.RegisterFunction("WinForms_CloseMainForm", Me, [GetType]().GetMethod("WinForms_CloseMainForm"))
+        lua.RegisterFunction("System_Command", Me, [GetType]().GetMethod("System_Command"))
 
         Dim luaFiles As String() = Directory.EnumerateFiles(modsPath).
                              Where(Function(f) f.EndsWith(".lua") OrElse f.EndsWith(".txt")).
@@ -23,38 +45,31 @@ Public Class PMOD_MAIN
 
         For Each luaFile In luaFiles
             Try
+                ' Read the first line of the Lua script to check for --!strict
+                Dim firstLine As String = File.ReadLines(luaFile).FirstOrDefault()
+
+                If firstLine IsNot Nothing AndAlso firstLine.Trim() = "--!strict" Then
+                    lua.DoString("require('strict').setup()")
+                End If
+
                 lua.DoFile(luaFile)
                 Console.WriteLine($"Executed script: {Path.GetFileName(luaFile)}")
             Catch ex As Exception
-                Console.WriteLine($"Error executing script {Path.GetFileName(luaFile)}: {ex.Message}")
+                MessageBox.Show($"Error executing script {Path.GetFileName(luaFile)}: {ex.Message}")
             End Try
         Next
-
-        ' DEFINE: Variables
-        lua.DoString("_P = {}") ' Defines '_P' table, like the '_G' one, but in this case for read-only PMod things.
-
-        lua("_P.URL") = "https://github.com/PatoFlamejanteTV/patosmod/tree/main"
-        lua("_P.BRANCH") = "main"
-        lua("_P.GITHUB") = "PatoFlamejanteTV/patosmod"
-        lua("_P.VERSION") = "0.0.1"
-        lua("_P.VERSIONSTATE") = "Concept" 'Concept -> Alpha -> Beta -> Pre-Final -> Final
-
-        ' DEFINE: Functions
-        lua.RegisterFunction("WinForms_MessageBox", Me, [GetType]().GetMethod("WinForms_MessageBox"))
-        lua.RegisterFunction("WinForms_CloseMainForm", Me, [GetType]().GetMethod("WinForms_CloseMainForm"))
-
-        lua.RegisterFunction("System_Command", Me, [GetType]().GetMethod("System_Command"))
-
     End Sub
 
     Public Function WinForms_MessageBox(msg As String)
         Return MessageBox.Show(msg)
     End Function
+
     Public Function WinForms_CloseMainForm()
         Return "closing" ' in case IO/System errors
         Application.Exit()
         Return "closed"
     End Function
+
     Public Function System_Command(command As String, args As String, permanent As Boolean)
         Dim p As Process = New Process()
         Dim pi As ProcessStartInfo = New ProcessStartInfo()
@@ -69,5 +84,4 @@ Public Class PMOD_MAIN
         Dim modsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "lua")
         Process.Start("explorer.exe", modsPath)
     End Sub
-
 End Class
