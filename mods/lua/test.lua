@@ -1,1 +1,1 @@
-MessageBox("Hello from ".._P.VERSIONSTATE..", ".._P.VERSION.."! :D")
+MessageBox("Hello from Lua, at ".._P.VERSIONSTATE..", ".._P.VERSION.."! :D")

@@ -1,17 +1,27 @@
 ﻿Imports LuaInterface
 Imports System.IO
-
+Imports System.CodeDom.Compiler
+Imports System.Reflection
 Public Class PMOD_MAIN
     Private Sub PMOD_ENGINE_STARTUP(sender As Object, e As EventArgs) Handles MyBase.Load
-        Dim modsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "lua")
-        Dim modulesPath As String = Path.Combine(modsPath, "modules")
+        Dim luamodsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "lua")
+        Dim vbmodsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "vb")
+        Dim modulesPath As String = Path.Combine(luamodsPath, "modules")
 
         ' Check if the directories exist, if not, create them
-        If Not Directory.Exists(modsPath) Then
-            Directory.CreateDirectory(modsPath)
+        If Not Directory.Exists(luamodsPath) Then
+            Directory.CreateDirectory(luamodsPath)
             Console.WriteLine("The directory 'mods/lua' was not found and has been created.")
             Return
         End If
+
+        If Not Directory.Exists(vbmodsPath) Then
+            Directory.CreateDirectory(vbmodsPath)
+            Console.WriteLine("The directory 'mods/vb' was not found and has been created.")
+            Return
+        End If
+
+
 
         If Not Directory.Exists(modulesPath) Then
             Directory.CreateDirectory(modulesPath)
@@ -33,6 +43,7 @@ Public Class PMOD_MAIN
         _P.GITHUB = 'PatoFlamejanteTV/patosmod'
         _P.VERSION = '0.0.1'
         _P.VERSIONSTATE = 'Concept'
+        _P.SUPPORTEDLANGS = {'lua'}
         ")
 
         ' DEFINE: Functions
@@ -40,8 +51,13 @@ Public Class PMOD_MAIN
         lua.RegisterFunction("CloseMainForm", Me, [GetType]().GetMethod("WinForms_CloseMainForm"))
         lua.RegisterFunction("SysCommand", Me, [GetType]().GetMethod("System_Command"))
 
-        Dim luaFiles As String() = Directory.EnumerateFiles(modsPath).
+        Dim luaFiles As String() = Directory.EnumerateFiles(luamodsPath).
                              Where(Function(f) f.EndsWith(".lua") OrElse f.EndsWith(".txt")).
+                             ToArray()
+
+        ' Enumerate .vb or .txt files
+        Dim vbFiles As String() = Directory.EnumerateFiles(vbmodsPath).
+                             Where(Function(f) f.EndsWith(".vb") OrElse f.EndsWith(".txt")).
                              ToArray()
 
         For Each luaFile In luaFiles
@@ -60,7 +76,67 @@ Public Class PMOD_MAIN
                 MessageBox.Show($"Error executing script {Path.GetFileName(luaFile)}: {ex.Message}")
             End Try
         Next
+
+        For Each vbFile In vbFiles
+            Try
+                ' Read the content of the VB.NET script
+                Dim vbCode As String = File.ReadAllText(vbFile)
+
+                ' Compile and execute the VB.NET code
+                ExecuteVbNetCode(vbCode)
+                Console.WriteLine($"Executed script: {Path.GetFileName(vbFile)}")
+            Catch ex As Exception
+                Console.WriteLine($"Error executing script {Path.GetFileName(vbFile)}: {ex.Message}")
+                MessageBox.Show($"Error executing script {Path.GetFileName(vbFile)}: {ex.Message}")
+            End Try
+        Next
     End Sub
+
+    Public Sub ExecuteVbNetCodeFromFile(filePath As String)
+        Try
+            ' Read the VB.NET code from the file
+            Dim vbCode As String = File.ReadAllText(filePath)
+
+            ' Execute the VB.NET code
+            ExecuteVbNetCode(vbCode)
+        Catch ex As Exception
+            MessageBox.Show("Error reading or executing VB.NET code: " & ex.Message)
+        End Try
+    End Sub
+
+    Private Sub ExecuteVbNetCode(vbCode As String)
+        Try
+            Dim vbProvider As New VBCodeProvider()
+            Dim parameters As New CompilerParameters()
+            parameters.GenerateInMemory = True
+
+            parameters.ReferencedAssemblies.Add("System.dll")
+            parameters.ReferencedAssemblies.Add("System.Windows.Forms.dll")
+            ' Wrap the code in a simple class and method
+            Dim wrappedCode As String = "
+                Imports System
+                " & vbCode & "
+            "
+
+            ' Compile
+            Dim results As CompilerResults = vbProvider.CompileAssemblyFromSource(parameters, wrappedCode)
+
+            If results.Errors.HasErrors Then
+                Console.WriteLine("Error in VB.NET code: " & results.Errors(0).ErrorText)
+                MessageBox.Show("Error in VB.NET code: " & results.Errors(0).ErrorText)
+            Else
+                ' Execute
+                Dim assembly As Assembly = results.CompiledAssembly
+                Dim scriptType As Type = assembly.GetType("Script")
+                Dim scriptInstance As Object = Activator.CreateInstance(scriptType)
+                scriptType.GetMethod("Execute").Invoke(scriptInstance, Nothing)
+            End If
+        Catch ex As Exception
+            Console.WriteLine("VB Exception: " & ex.Message)
+            MessageBox.Show("VB Exception: " & ex.Message)
+        End Try
+    End Sub
+
 
     Public Function WinForms_MessageBox(msg As String)
         Return MessageBox.Show(msg)
