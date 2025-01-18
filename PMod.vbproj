@@ -114,9 +114,6 @@
     <None Include="mods\lua\modules\strict.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="mods\lua\modules\wait.lua">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="mods\lua\test.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

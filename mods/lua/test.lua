@@ -1,4 +1,1 @@
-while times < 10 then
-	print("Hello!, from Lua!")
-	wait(1)
-end
+MessageBox("Hello from ".._P.VERSIONSTATE..", ".._P.VERSION.."! :D")

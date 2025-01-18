@@ -23,10 +23,11 @@ Public Class PMOD_MAIN
         ' Update Lua path to include the modules directory
         lua.DoString(String.Format("package.path = package.path .. ';{0}{1}?.lua'", modulesPath, Path.DirectorySeparatorChar))
 
+        Console.WriteLine(String.Format("package.path = package.path .. ';{0}{1}?.lua'", modulesPath, Path.DirectorySeparatorChar))
+
         ' DEFINE: Variables
         lua.DoString("
         _P = {}
-        _P.VERSION = 1
         _P.URL = 'https://github.com/PatoFlamejanteTV/patosmod/tree/main'
         _P.BRANCH = 'main'
         _P.GITHUB = 'PatoFlamejanteTV/patosmod'
@@ -35,9 +36,9 @@ Public Class PMOD_MAIN
         ")
 
         ' DEFINE: Functions
-        lua.RegisterFunction("WinForms_MessageBox", Me, [GetType]().GetMethod("WinForms_MessageBox"))
-        lua.RegisterFunction("WinForms_CloseMainForm", Me, [GetType]().GetMethod("WinForms_CloseMainForm"))
-        lua.RegisterFunction("System_Command", Me, [GetType]().GetMethod("System_Command"))
+        lua.RegisterFunction("MessageBox", Me, [GetType]().GetMethod("WinForms_MessageBox"))
+        lua.RegisterFunction("CloseMainForm", Me, [GetType]().GetMethod("WinForms_CloseMainForm"))
+        lua.RegisterFunction("SysCommand", Me, [GetType]().GetMethod("System_Command"))
 
         Dim luaFiles As String() = Directory.EnumerateFiles(modsPath).
                              Where(Function(f) f.EndsWith(".lua") OrElse f.EndsWith(".txt")).
@@ -49,13 +50,13 @@ Public Class PMOD_MAIN
                 Dim firstLine As String = File.ReadLines(luaFile).FirstOrDefault()
 
                 If firstLine IsNot Nothing AndAlso firstLine.Trim() = "--!strict" Then
-                    lua.DoString("require('strict').setup()")
+                    lua.DoString("require('mods\\lua\\modules\\strict')")
                 End If
 
-                lua.DoString("require('wait').setup()")
                 lua.DoFile(luaFile)
                 Console.WriteLine($"Executed script: {Path.GetFileName(luaFile)}")
             Catch ex As Exception
+                Console.WriteLine($"Error executing script {Path.GetFileName(luaFile)}: {ex.Message}")
                 MessageBox.Show($"Error executing script {Path.GetFileName(luaFile)}: {ex.Message}")
             End Try
         Next
