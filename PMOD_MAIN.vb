@@ -52,6 +52,7 @@ Public Class PMOD_MAIN
                     lua.DoString("require('strict').setup()")
                 End If
 
+                lua.DoString("require('wait').setup()")
                 lua.DoFile(luaFile)
                 Console.WriteLine($"Executed script: {Path.GetFileName(luaFile)}")
             Catch ex As Exception
