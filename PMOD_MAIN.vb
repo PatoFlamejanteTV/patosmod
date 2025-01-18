@@ -17,7 +17,9 @@ Public Class PMOD_MAIN
 
         Dim lua As New Lua() ' most important line /gen
 
-        Dim luaFiles As String() = Directory.GetFiles(modsPath, "*.lua")
+        Dim luaFiles As String() = Directory.EnumerateFiles(modsPath).
+                             Where(Function(f) f.EndsWith(".lua") OrElse f.EndsWith(".txt")).
+                             ToArray()
 
         For Each luaFile In luaFiles
             Try
