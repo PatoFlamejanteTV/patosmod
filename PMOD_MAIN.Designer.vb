@@ -31,7 +31,7 @@ Partial Class PMOD_MAIN
         Me.ButtonOpenFolder.Name = "ButtonOpenFolder"
         Me.ButtonOpenFolder.Size = New System.Drawing.Size(272, 23)
         Me.ButtonOpenFolder.TabIndex = 0
-        Me.ButtonOpenFolder.Text = "ButtonOpenFolder"
+        Me.ButtonOpenFolder.Text = "Open mods/lua"
         Me.ButtonOpenFolder.UseVisualStyleBackColor = True
         '
         'PMOD_MAIN
@@ -41,7 +41,7 @@ Partial Class PMOD_MAIN
         Me.ClientSize = New System.Drawing.Size(297, 297)
         Me.Controls.Add(Me.ButtonOpenFolder)
         Me.Name = "PMOD_MAIN"
-        Me.Text = "PMOD_MAIN"
+        Me.Text = "PatosMod: Main Window"
         Me.ResumeLayout(False)
 
     End Sub
