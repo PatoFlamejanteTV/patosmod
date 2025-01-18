@@ -162,7 +162,7 @@ Public Class PMOD_MAIN
     End Function
 
     Public Function System_BrowserOpen(url As String)
-        Return Process.Start("cmd.exe", "start" & url)
+        Return Process.Start("cmd.exe", "start " & url)
     End Function
 
     Private Sub ButtonOpenFolder_Click(sender As Object, e As EventArgs) Handles ButtonOpenFolder.Click
