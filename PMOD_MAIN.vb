@@ -51,6 +51,9 @@ Public Class PMOD_MAIN
         lua.RegisterFunction("CloseMainForm", Me, [GetType]().GetMethod("WinForms_CloseMainForm"))
         lua.RegisterFunction("SysCommand", Me, [GetType]().GetMethod("System_Command"))
 
+        lua.RegisterFunction("SysBrowser_Open", Me, [GetType]().GetMethod("System_BrowserOpen"))
+
+
         Dim luaFiles As String() = Directory.EnumerateFiles(luamodsPath).
                              Where(Function(f) f.EndsWith(".lua") OrElse f.EndsWith(".txt")).
                              ToArray()
@@ -156,6 +159,10 @@ Public Class PMOD_MAIN
         p.StartInfo = pi
         p.Start()
         Return {p, pi} 'return both Process and ProcessStartInfo
+    End Function
+
+    Public Function System_BrowserOpen(url As String)
+        Return Process.Start("cmd.exe", "start" & url)
     End Function
 
     Private Sub ButtonOpenFolder_Click(sender As Object, e As EventArgs) Handles ButtonOpenFolder.Click
