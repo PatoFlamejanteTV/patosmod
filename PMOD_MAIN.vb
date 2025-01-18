@@ -31,6 +31,9 @@ Public Class PMOD_MAIN
         ' DEFINE: Variables
         lua.DoString("_P = {}") ' Defines '_P' table, like the '_G' one, but in this case for read-only PMod things.
 
+        lua("_P.URL") = "https://github.com/PatoFlamejanteTV/patosmod/tree/main"
+        lua("_P.BRANCH") = "main"
+        lua("_P.GITHUB") = "PatoFlamejanteTV/patosmod"
         lua("_P.VERSION") = "0.0.1"
         lua("_P.VERSIONSTATE") = "Concept" 'Concept -> Alpha -> Beta -> Pre-Final -> Final
 
