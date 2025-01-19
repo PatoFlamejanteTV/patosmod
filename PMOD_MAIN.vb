@@ -2,10 +2,13 @@
 Imports System.IO
 Imports System.CodeDom.Compiler
 Imports System.Reflection
+Imports IronPython.Hosting
 Public Class PMOD_MAIN
     Private Sub PMOD_ENGINE_STARTUP(sender As Object, e As EventArgs) Handles MyBase.Load
         Dim luamodsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "lua")
         Dim vbmodsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "vb")
+        Dim pymodsPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mods", "py")
+
         Dim modulesPath As String = Path.Combine(luamodsPath, "modules")
 
         ' Check if the directories exist, if not, create them
@@ -18,6 +21,12 @@ Public Class PMOD_MAIN
         If Not Directory.Exists(vbmodsPath) Then
             Directory.CreateDirectory(vbmodsPath)
             Console.WriteLine("The directory 'mods/vb' was not found and has been created.")
+            Return
+        End If
+
+        If Not Directory.Exists(pymodsPath) Then
+            Directory.CreateDirectory(pymodsPath)
+            Console.WriteLine("The directory 'mods/py' was not found and has been created.")
             Return
         End If
 
@@ -57,10 +66,11 @@ Public Class PMOD_MAIN
         Dim luaFiles As String() = Directory.EnumerateFiles(luamodsPath).
                              Where(Function(f) f.EndsWith(".lua") OrElse f.EndsWith(".txt")).
                              ToArray()
-
-        ' Enumerate .vb or .txt files
         Dim vbFiles As String() = Directory.EnumerateFiles(vbmodsPath).
                              Where(Function(f) f.EndsWith(".vb") OrElse f.EndsWith(".txt")).
+                             ToArray()
+        Dim pyFiles As String() = Directory.EnumerateFiles(pymodsPath).
+                             Where(Function(f) f.EndsWith(".py") OrElse f.EndsWith(".txt")).
                              ToArray()
 
         For Each luaFile In luaFiles
@@ -82,15 +92,25 @@ Public Class PMOD_MAIN
 
         For Each vbFile In vbFiles
             Try
-                ' Read the content of the VB.NET script
                 Dim vbCode As String = File.ReadAllText(vbFile)
 
-                ' Compile and execute the VB.NET code
                 ExecuteVbNetCode(vbCode)
                 Console.WriteLine($"Executed script: {Path.GetFileName(vbFile)}")
             Catch ex As Exception
                 Console.WriteLine($"Error executing script {Path.GetFileName(vbFile)}: {ex.Message}")
                 MessageBox.Show($"Error executing script {Path.GetFileName(vbFile)}: {ex.Message}")
+            End Try
+        Next
+
+        For Each pyFile In pyFiles
+            Try
+                Dim pyCode As String = File.ReadAllText(pyFile)
+
+                ExecutePythonCode(pyCode)
+                Console.WriteLine($"Executed script: {Path.GetFileName(pyFile)}")
+            Catch ex As Exception
+                Console.WriteLine($"Error executing script {Path.GetFileName(pyFile)}: {ex.Message}")
+                MessageBox.Show($"Error executing script {Path.GetFileName(pyFile)}: {ex.Message}")
             End Try
         Next
     End Sub
@@ -140,7 +160,16 @@ Public Class PMOD_MAIN
         End Try
     End Sub
 
-
+    Private Sub ExecutePythonCode(pythonCode As String)
+        Try
+            ' Create a new Python engine
+            Dim engine = Python.CreateEngine()
+            ' Execute the Python code
+            engine.Execute(pythonCode)
+        Catch ex As Exception
+            MessageBox.Show("Error executing Python code: " & ex.Message)
+        End Try
+    End Sub
     Public Function WinForms_MessageBox(msg As String)
         Return MessageBox.Show(msg)
     End Function
