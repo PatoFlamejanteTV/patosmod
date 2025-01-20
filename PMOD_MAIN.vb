@@ -60,7 +60,7 @@ Public Class PMOD_MAIN
         lua.RegisterFunction("CloseMainForm", Me, [GetType]().GetMethod("WinForms_CloseMainForm"))
         lua.RegisterFunction("SysCommand", Me, [GetType]().GetMethod("System_Command"))
 
-        lua.RegisterFunction("SysBrowser_Open", Me, [GetType]().GetMethod("System_BrowserOpen"))
+        lua.RegisterFunction("Browser_Open", Me, [GetType]().GetMethod("System_BrowserOpen"))
 
 
         Dim luaFiles As String() = Directory.EnumerateFiles(luamodsPath).
