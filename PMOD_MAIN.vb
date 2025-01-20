@@ -139,15 +139,11 @@ Public Class PMOD_MAIN
 				Imports System.IO
 				Imports System.Windows.Forms
 
-                Public Class Script
-                    Public Sub Execute()
-                        " & vbCode & "
-                    End Sub
-                End Class
+                " & vbCode & "
             "
 
-            ' Compile
-            Dim results As CompilerResults = vbProvider.CompileAssemblyFromSource(parameters, wrappedCode)
+			' Compile
+			Dim results As CompilerResults = vbProvider.CompileAssemblyFromSource(parameters, wrappedCode)
 
             If results.Errors.HasErrors Then
                 Console.WriteLine("Error in VB.NET code: " & results.Errors(0).ErrorText)
