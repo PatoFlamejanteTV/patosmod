@@ -149,6 +149,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <None Include="docs\demos.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="docs\intro.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="mods\lua\modules\strict.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
