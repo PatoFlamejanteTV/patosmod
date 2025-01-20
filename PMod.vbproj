@@ -148,6 +148,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="mods\lua\modules\strict.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
