@@ -7,12 +7,12 @@ PatosMod is not exactly an engine; it's more than a framework where complex/syst
 Things like _opening an MessageBox_ are **NOT** on “pure” Lua, so it makes using PatosMod better than using a bunch of modules to make a simple action:
 
 **PatosMod:**
-``` lua
-MessageBox('Hello world!')
+``` lua copy
+MessageBox('Hello world!') -- Just ONE line
 ```
 
 “Pure” Lua: [Source](https://stackoverflow.com/a/32920678/26411616)
-``` lua
+``` lua copy
 local ffi = require("ffi")  -- Load FFI module (instance)
 
 local user32 = ffi.load("user32")   -- Load User32 DLL handle
