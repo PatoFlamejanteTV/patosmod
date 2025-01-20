@@ -39,8 +39,8 @@ Public Class PMOD_MAIN
 
         Dim lua As New Lua() ' most important line /gen
 
-        ' Update Lua path to include the modules directory
-        lua.DoString(String.Format("package.path = package.path .. ';{0}{1}?.lua'", modulesPath, Path.DirectorySeparatorChar))
+		' Update Lua path
+		lua.DoString(String.Format("package.path = package.path .. ';{0}{1}?.lua'", modulesPath, Path.DirectorySeparatorChar))
 
         Console.WriteLine(String.Format("package.path = package.path .. ';{0}{1}?.lua'", modulesPath, Path.DirectorySeparatorChar))
 
@@ -116,14 +116,12 @@ Public Class PMOD_MAIN
     End Sub
 
     Public Sub ExecuteVbNetCodeFromFile(filePath As String)
-        Try
-            ' Read the VB.NET code from the file
-            Dim vbCode As String = File.ReadAllText(filePath)
+		Try
+			Dim vbCode As String = File.ReadAllText(filePath)
 
-            ' Execute the VB.NET code
-            ExecuteVbNetCode(vbCode)
-        Catch ex As Exception
-            MessageBox.Show("Error reading or executing VB.NET code: " & ex.Message)
+			ExecuteVbNetCode(vbCode)
+		Catch ex As Exception
+			MessageBox.Show("Error reading or executing VB.NET code: " & ex.Message)
         End Try
     End Sub
 
@@ -135,10 +133,17 @@ Public Class PMOD_MAIN
 
             parameters.ReferencedAssemblies.Add("System.dll")
             parameters.ReferencedAssemblies.Add("System.Windows.Forms.dll")
-            ' Wrap the code in a simple class and method
-            Dim wrappedCode As String = "
+			' Wrap
+			Dim wrappedCode As String = "
                 Imports System
-                " & vbCode & "
+				Imports System.IO
+				Imports System.Windows.Forms
+
+                Public Class Script
+                    Public Sub Execute()
+                        " & vbCode & "
+                    End Sub
+                End Class
             "
 
             ' Compile
@@ -161,13 +166,12 @@ Public Class PMOD_MAIN
     End Sub
 
     Private Sub ExecutePythonCode(pythonCode As String)
-        Try
-            ' Create a new Python engine
-            Dim engine = Python.CreateEngine()
-            ' Execute the Python code
-            engine.Execute(pythonCode)
-        Catch ex As Exception
-            MessageBox.Show("Error executing Python code: " & ex.Message)
+		Try
+			Dim engine = Python.CreateEngine()
+			' Execute
+			engine.Execute(pythonCode)
+		Catch ex As Exception
+			MessageBox.Show("Error executing Python code: " & ex.Message)
         End Try
     End Sub
     Public Function WinForms_MessageBox(msg As String)
